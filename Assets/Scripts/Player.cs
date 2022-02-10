@@ -19,12 +19,27 @@ public class Player : MonoBehaviour
 
     private Vector2 input;
     private bool attachedObject;
+    private List<IPlayerListener> listeners;
     public bool ropeConnection = false;
+
+    public int Collectables { get; set; }
+    public int Diamonds { get; set; }
+    public int Lifes { get; set; }
 
     void Start()
     {
         Rigidbody = GetComponent<Rigidbody2D>();
         attachedObject = false;
+        Collectables = 0;
+        Diamonds = 0;
+        Lifes = 1;
+
+        UpdateExternalProprierts();
+    }
+
+    private void InitializeListeners()
+    {
+        listeners = new List<IPlayerListener>();
     }
 
     void Update()
@@ -95,12 +110,43 @@ public class Player : MonoBehaviour
         Debug.DrawLine(new Vector3(transform.position.x + RayInitPosition, transform.position.y, 0), new Vector3(transform.position.x + RayFinalPosition, transform.position.y, 0));
     }
 
+    public void AddToListeners(IPlayerListener playerListener)
+    {
+        if (listeners == null)
+            InitializeListeners();
+        listeners.Add(playerListener);
+
+        UpdateExternalProprierts();
+    }
+
+    public void UpdateExternalProprierts()
+    {
+        foreach (IPlayerListener player in listeners)
+        {
+            player.UpdatePlayerProprierts(this);
+        }
+    }
+
     private void OnCollisionEnter2D(Collision2D collision)
      {
         if (collision.contacts[0].point.x > transform.position.x)
         {
             if (collision.gameObject.tag == "Enemy")
                 Rigidbody.AddForce(new Vector2(0, 500f));
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.tag == "CapsuleCollectable")
+        {
+            Collectables++;
+            UpdateExternalProprierts();
+        }
+        else if (collision.gameObject.tag == "DiamondCollectable")
+        {
+            Diamonds++;
+            UpdateExternalProprierts();
         }
     }
 }

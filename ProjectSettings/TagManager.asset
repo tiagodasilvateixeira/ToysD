@@ -8,6 +8,9 @@ TagManager:
   - Circle
   - RopeIN
   - RopeOUT
+  - Tilemap
+  - CapsuleCollectable
+  - DiamondCollectable
   layers:
   - Default
   - TransparentFX
